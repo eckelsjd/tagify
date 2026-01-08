@@ -9,9 +9,9 @@ Tagify is a powerful [Spicetify](https://github.com/spicetify/cli) custom app th
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?style=flat&logo=buymeacoffee&logoColor=000)](https://buymeacoffee.com/alexk218)
 
 
-## Demo
+## See Tagify in action
+[![Demo Video](https://img.youtube.com/vi/iDsSasHFOJQ/0.jpg)](https://www.youtube.com/watch?v=iDsSasHFOJQ)
 
-Check out a video walkthrough of Tagify in action: [YouTube demo](https://www.youtube.com/watch?v=0N1yp8--mTQ)
 
 ## Motivation
 
