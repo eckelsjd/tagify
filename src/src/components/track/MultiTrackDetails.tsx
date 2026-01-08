@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import styles from "./MultiTrackDetails.module.css";
 import { BatchTagUpdate, TrackTag } from "@/hooks/data/useTagData";
 import { DraftTagState } from "@/hooks/data/useMultiTrackTagging";
 import ReactStars from "react-rating-stars-component";
-import { Lock, Tag } from "lucide-react";
+import { Lightbulb, Lock, Tag } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar, faStarHalf } from "@fortawesome/free-solid-svg-icons";
+import { keyboardShortcutService } from "@/services/KeyboardShortcutService";
 
 interface MultiTrackDetailsProps {
   tracks: Array<{
@@ -120,14 +121,67 @@ const MultiTrackDetails: React.FC<MultiTrackDetailsProps> = ({
     setHasUnsavedChanges(hasAnyChanges);
   }, [multiTrackDraftTags, trackDataMap, tracks]);
 
+  const resetDraftToOriginal = useCallback(() => {
+    const resetDraft: DraftTagState = {};
+    tracks.forEach((track) => {
+      const originalData = trackDataMap[track.uri] || {
+        tags: [],
+        rating: 0,
+        energy: 0,
+      };
+      resetDraft[track.uri] = {
+        tags: [...originalData.tags],
+        rating: originalData.rating,
+        energy: originalData.energy,
+      };
+    });
+    onSetMultiTrackDraftTags(resetDraft);
+  }, [tracks, trackDataMap, onSetMultiTrackDraftTags]);
+
+  const [shortcutsEnabled, setShortcutsEnabled] = useState(() => {
+    try {
+      const raw = localStorage.getItem("tagify:keyboardShortcutSettings");
+      if (raw) {
+        return JSON.parse(raw).enabled ?? true;
+      }
+    } catch {
+      // ignore parse errors
+    }
+    return true;
+  });
+
+  useEffect(() => {
+    const handleSettingsChange = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const enabled = customEvent.detail?.enableKeyboardShortcuts;
+      if (typeof enabled === "boolean") {
+        setShortcutsEnabled(enabled);
+      }
+    };
+
+    window.addEventListener(
+      "tagify:keyboardSettingsChanged",
+      handleSettingsChange
+    );
+    return () => {
+      window.removeEventListener(
+        "tagify:keyboardSettingsChanged",
+        handleSettingsChange
+      );
+    };
+  }, []);
+
+  // HANDLE "SAVE CHANGES" SHORTCUT (CMD + SHIFT + S)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // check for Ctrl+S or Cmd+S
-      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+      if (!shortcutsEnabled) {
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "s") {
         e.preventDefault();
 
         if (hasUnsavedChanges) {
-          handleSaveChanges();
+          handleSaveChangesRef.current();
         }
       }
     };
@@ -138,6 +192,81 @@ const MultiTrackDetails: React.FC<MultiTrackDetailsProps> = ({
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [hasUnsavedChanges]);
+
+  // KEYBOARD SHORTCUTS 1-0 AND SHIFT + 1-0
+  useEffect(() => {
+    // Disable the global service while this component is mounted
+    keyboardShortcutService.temporarilyDisable();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!shortcutsEnabled) {
+        return;
+      }
+      if (
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLTextAreaElement ||
+        (event.target instanceof HTMLElement && event.target.isContentEditable)
+      ) {
+        return;
+      }
+
+      const code = event.code;
+      const isShiftPressed = event.shiftKey;
+
+      // Only handle Digit0-Digit9 keys
+      const digitMatch = code.match(/^Digit(\d)$/);
+      if (!digitMatch) return;
+
+      const digit = digitMatch[1];
+
+      const digitToStarRating: { [key: string]: number } = {
+        "1": 0.5,
+        "2": 1,
+        "3": 1.5,
+        "4": 2,
+        "5": 2.5,
+        "6": 3,
+        "7": 3.5,
+        "8": 4,
+        "9": 4.5,
+        "0": 5,
+      };
+
+      const digitToEnergyRating: { [key: string]: number } = {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6,
+        "7": 7,
+        "8": 8,
+        "9": 9,
+        "0": 10,
+      };
+
+      if (isShiftPressed) {
+        // Energy rating
+        event.preventDefault();
+        event.stopPropagation();
+        const energy = digitToEnergyRating[digit];
+        onToggleEnergyRatingDraft(energy);
+      } else {
+        // Star rating
+        event.preventDefault();
+        event.stopPropagation();
+        const rating = digitToStarRating[digit];
+        onToggleStarRatingDraft(rating);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown, true);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown, true);
+      keyboardShortcutService.temporarilyEnable();
+    };
+  }, [onToggleStarRatingDraft, onToggleEnergyRatingDraft, shortcutsEnabled]);
 
   const commonTags = onFindCommonTagsFromDraft(multiTrackDraftTags).sort(
     (a, b) => {
@@ -219,22 +348,15 @@ const MultiTrackDetails: React.FC<MultiTrackDetailsProps> = ({
     Spicetify.showNotification(`Saved changes to ${changes.length} tracks`);
   };
 
+  // use a ref to always have the latest function -> this fixes bug when using cmd + S shortcut.
+  // the useEffect that handles shortcuts captures values at the time it runs - so we get stale closures.
+  // as opposed to button click ("Save Changes") which always has latest version of handleSaveChanges.
+  const handleSaveChangesRef = useRef(handleSaveChanges);
+  handleSaveChangesRef.current = handleSaveChanges;
+
   // Cancel changes - reset to original state
   const handleCancelChanges = () => {
-    const resetDraft: DraftTagState = {};
-    tracks.forEach((track) => {
-      const originalData = trackDataMap[track.uri] || {
-        tags: [],
-        rating: 0,
-        energy: 0,
-      };
-      resetDraft[track.uri] = {
-        tags: [...originalData.tags],
-        rating: originalData.rating,
-        energy: originalData.energy,
-      };
-    });
-    onSetMultiTrackDraftTags(resetDraft);
+    resetDraftToOriginal();
     setHasUnsavedChanges(false);
   };
 
@@ -244,39 +366,12 @@ const MultiTrackDetails: React.FC<MultiTrackDetailsProps> = ({
       if (
         confirm("You have unsaved changes. Are you sure you want to cancel?")
       ) {
-        const resetDraft: DraftTagState = {};
-        tracks.forEach((track) => {
-          const originalData = trackDataMap[track.uri] || {
-            tags: [],
-            rating: 0,
-            energy: 0,
-          };
-          resetDraft[track.uri] = {
-            tags: [...originalData.tags],
-            rating: originalData.rating,
-            energy: originalData.energy,
-          };
-        });
-        onSetMultiTrackDraftTags(resetDraft);
+        resetDraftToOriginal();
         setHasUnsavedChanges(false);
-
         onCancelTagging();
       }
     } else {
-      const resetDraft: DraftTagState = {};
-      tracks.forEach((track) => {
-        const originalData = trackDataMap[track.uri] || {
-          tags: [],
-          rating: 0,
-          energy: 0,
-        };
-        resetDraft[track.uri] = {
-          tags: [...originalData.tags],
-          rating: originalData.rating,
-          energy: originalData.energy,
-        };
-      });
-      onSetMultiTrackDraftTags(resetDraft);
+      resetDraftToOriginal();
       setHasUnsavedChanges(false);
       onCancelTagging();
     }
@@ -356,12 +451,66 @@ const MultiTrackDetails: React.FC<MultiTrackDetailsProps> = ({
 
   const currentEnergy = getCurrentEnergy();
 
+  const isMac =
+    typeof navigator !== "undefined" &&
+    /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+
   return (
     <div className={styles.container}>
       {/* HEADER */}
       <div className={styles.headerSection}>
         <div className={styles.header}>
           <h2 className={styles.title}>Bulk Tagging</h2>
+          <div className={styles.helpTooltip}>
+            ?
+            <div className={styles.tooltipContent}>
+              <div className={styles.tooltipHeader}>
+                <Lightbulb size={14} />
+                <span>Keyboard Shortcuts</span>
+              </div>
+
+              <div className={styles.shortcutList}>
+                <div className={styles.shortcutItem}>
+                  <span className={styles.shortcutLabel}>Save Changes</span>
+                  <div className={styles.shortcutKeys}>
+                    {isMac ? (
+                      <>
+                        <kbd>⌘</kbd>
+                        <kbd>⇧</kbd>
+                        <kbd>S</kbd>
+                      </>
+                    ) : (
+                      <>
+                        <kbd>Ctrl</kbd>
+                        <kbd>Shift</kbd>
+                        <kbd>S</kbd>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.shortcutItem}>
+                  <span className={styles.shortcutLabel}>Star Rating</span>
+                  <div className={styles.shortcutKeys}>
+                    <kbd>1</kbd>
+                    <span className={styles.keyDivider}>–</span>
+                    <kbd>0</kbd>
+                  </div>
+                </div>
+
+                <div className={styles.shortcutItem}>
+                  <span className={styles.shortcutLabel}>Energy Rating</span>
+                  <div className={styles.shortcutKeys}>
+                    <kbd>⇧</kbd>
+                    <kbd>1</kbd>
+                    <span className={styles.keyDivider}>–</span>
+                    <kbd>⇧</kbd>
+                    <kbd>0</kbd>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           <div className={styles.summary}>
             <span className={styles.trackCount}>
               {tracks.length} tracks selected
@@ -374,6 +523,7 @@ const MultiTrackDetails: React.FC<MultiTrackDetailsProps> = ({
                 className={styles.saveButton}
                 onClick={handleSaveChanges}
                 disabled={!hasUnsavedChanges}
+                title={`Save Changes (${isMac ? "⌘⇧S" : "Ctrl+Shift+S"})`}
               >
                 Save Changes
               </button>

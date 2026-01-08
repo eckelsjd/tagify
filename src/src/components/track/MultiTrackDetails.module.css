@@ -11,7 +11,8 @@
 .headerSection {
   display: flex;
   flex-direction: column;
-  gap: 8px; /* Smaller gap within the header section */
+  gap: 8px; 
+  z-index: 2000;
 }
 
 .header {
@@ -459,7 +460,6 @@
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
-
   /* Ensure button is vertically centered in its grid cell */
 }
 
@@ -471,4 +471,122 @@
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+}
+
+.helpTooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgb(30 144 255 / 20%);
+  color: #1e90ff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: help;
+  transition: all 0.2s ease;
+  margin-left: 8px;
+  margin-bottom: 16px;
+  margin-right: auto;
+}
+
+.helpTooltip:hover {
+  background: rgb(30 144 255 / 30%);
+  transform: scale(1.1);
+}
+
+.tooltipContent {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: var(--spice-card);
+  color: var(--spice-text);
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 40%);
+  border: 1px solid rgb(255 255 255 / 10%);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  width: 240px;
+  pointer-events: none;
+}
+
+.helpTooltip:hover .tooltipContent {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-4px);
+}
+
+.tooltipContent::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 16px;
+  border: 6px solid transparent;
+  border-bottom-color: var(--spice-card);
+}
+
+.tooltipHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--spice-subtext);
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+}
+
+.shortcutList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.shortcutItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.shortcutLabel {
+  font-size: 13px;
+  color: var(--spice-text);
+}
+
+.shortcutKeys {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.shortcutKeys kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  background: rgb(0 0 0 / 30%);
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--spice-text);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 10%);
+}
+
+.keyDivider {
+  font-size: 10px;
+  color: var(--spice-subtext);
+  margin: 0 2px;
 }

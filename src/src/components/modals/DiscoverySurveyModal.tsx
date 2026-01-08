@@ -42,15 +42,6 @@ const DiscoverySurveyModal: React.FC<DiscoverySurveyModalProps> = ({
       value: "marketplace",
     },
     {
-      id: "github",
-      label: (
-        <>
-          <FontAwesomeIcon icon={faGithub} /> GitHub Repository
-        </>
-      ),
-      value: "github",
-    },
-    {
       id: "reddit",
       label: (
         <>
@@ -85,6 +76,15 @@ const DiscoverySurveyModal: React.FC<DiscoverySurveyModalProps> = ({
         </>
       ),
       value: "friend",
+    },
+    {
+      id: "github",
+      label: (
+        <>
+          <FontAwesomeIcon icon={faGithub} /> GitHub
+        </>
+      ),
+      value: "github",
     },
     {
       id: "search",

@@ -12,6 +12,8 @@ import {
 import { Lock, LockOpen } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar, faStarHalf } from "@fortawesome/free-solid-svg-icons";
+import { audioFeaturesService } from "@/services/AudioFeaturesService";
+import { spotifyService } from "@/services/SpotifyService";
 
 interface TrackDetailsProps {
   displayedTrack: SpotifyTrack; // The track displayed in TrackDetails
@@ -173,8 +175,14 @@ const TrackDetails: React.FC<TrackDetailsProps> = ({
 
     setIsRefreshingBpm(true);
     try {
-      const updatedBpm = await onUpdateBpm(displayedTrack.uri);
-      Spicetify.showNotification(`BPM updated to ${updatedBpm} from Spotify`);
+      const bpm = await audioFeaturesService.getBpmFromUri(displayedTrack.uri);
+
+      if (bpm !== null) {
+        onSetBpm(bpm);
+        Spicetify.showNotification(`BPM updated to ${bpm} from Spotify`);
+      } else {
+        Spicetify.showNotification("Could not fetch BPM from Spotify", true);
+      }
     } catch (error) {
       console.error("Error refreshing BPM:", error);
       Spicetify.showNotification("Error fetching BPM from Spotify", true);
@@ -211,12 +219,27 @@ const TrackDetails: React.FC<TrackDetailsProps> = ({
           return;
         }
 
-        const trackInfo = await Spicetify.CosmosAsync.get(
-          `https://api.spotify.com/v1/tracks/${trackId}`
-        );
+        const { Locale, GraphQL } = Spicetify;
+        const trackInfo = await GraphQL.Request(GraphQL.Definitions.getTrack, {
+          uri: displayedTrack.uri,
+          locale: Locale.getLocale(),
+        });
 
-        const audioFeatures = await Spicetify.CosmosAsync.get(
-          `https://api.spotify.com/v1/audio-features/${trackId}`
+        if (trackInfo.errors) {
+          console.error("GraphQL Errors:", trackInfo.errors);
+        }
+
+        console.log("Has data?", !!trackInfo.data);
+        console.log("Data structure:", Object.keys(trackInfo.data || {}));
+
+        console.log(
+          "🔍 FULL trackInfo response:",
+          JSON.stringify(trackInfo, null, 2)
+        );
+        console.log("🔍 trackInfo.data:", trackInfo.data);
+        console.log(
+          "🔍 trackInfo.data?.trackUnion:",
+          trackInfo.data?.trackUnion
         );
 
         // Try to get source context from Spicetify
@@ -241,10 +264,15 @@ const TrackDetails: React.FC<TrackDetailsProps> = ({
                   contextName = "Liked Songs";
                 } else if (contextType === "playlist") {
                   try {
-                    const playlistData = await Spicetify.CosmosAsync.get(
-                      `https://api.spotify.com/v1/playlists/${parts[2]}`
+                    const playlistData = await GraphQL.Request(
+                      GraphQL.Definitions.getPlaylist,
+                      {
+                        uri: playerContextUri,
+                        locale: Locale.getLocale(),
+                      }
                     );
-                    contextName = playlistData.name || "";
+                    contextName =
+                      playlistData.data?.playlistV2?.name || "Playlist";
                   } catch (e) {
                     contextName = "Playlist";
                   }
@@ -277,10 +305,18 @@ const TrackDetails: React.FC<TrackDetailsProps> = ({
         ) {
           const artistId = trackInfo.artists[0].id;
           try {
-            const artistInfo = await Spicetify.CosmosAsync.get(
-              `https://api.spotify.com/v1/artists/${artistId}`
+            const artistInfo = await GraphQL.Request(
+              GraphQL.Definitions.getArtist,
+              {
+                uri: `spotify:artist:${artistId}`,
+                locale: Locale.getLocale(),
+              }
             );
-            genres = artistInfo.genres || [];
+            genres =
+              artistInfo.data?.artistUnion?.profile?.biography?.genres?.slice(
+                0,
+                3
+              ) || [];
           } catch (e) {
             console.error("Error fetching artist info:", e);
           }
@@ -289,16 +325,37 @@ const TrackDetails: React.FC<TrackDetailsProps> = ({
         let playCount = null;
         try {
           if (!displayedTrack.uri.startsWith("spotify:local:")) {
-            playCount = await getTrackPlayCount(displayedTrack.uri);
+            playCount =
+              parseInt(trackInfo?.data?.trackUnion?.playcount, 10) || 0;
           }
         } catch (error) {
           console.error("Error fetching play count:", error);
         }
 
+        const releaseDate = formatDate(
+          trackInfo?.data?.trackUnion?.albumOfTrack?.date?.isoString || ""
+        );
+
+        const trackLength = formatDuration(
+          trackInfo?.data?.trackUnion?.duration?.totalMilliseconds || 0
+        );
+
+        let bpm = null;
+        if (
+          !trackData.bpm &&
+          !displayedTrack.uri.startsWith("spotify:local:")
+        ) {
+          try {
+            bpm = await audioFeaturesService.getBpmFromUri(displayedTrack.uri);
+          } catch (error) {
+            console.error("Error auto-fetching BPM:", error);
+          }
+        }
+
         setTrackMetadata({
-          releaseDate: formatDate(trackInfo.album?.release_date || ""),
-          trackLength: formatDuration(trackInfo.duration_ms || 0),
-          bpm: audioFeatures?.tempo ? Math.round(audioFeatures.tempo) : null,
+          releaseDate: releaseDate,
+          trackLength: trackLength,
+          bpm: bpm,
           playCount,
           sourceContext,
           genres: genres.slice(0, 3),
@@ -345,21 +402,21 @@ const TrackDetails: React.FC<TrackDetailsProps> = ({
         }
 
         // Fetch track info to get album ID and cover
-        const trackInfo: SpotifyTrackResponse = await Spicetify.CosmosAsync.get(
-          `https://api.spotify.com/v1/tracks/${trackId}`
-        );
+        const { GraphQL, Locale } = Spicetify;
+        const trackInfo = await GraphQL.Request(GraphQL.Definitions.getTrack, {
+          uri: displayedTrack.uri,
+          locale: Locale.getLocale(),
+        });
 
         if (
-          trackInfo &&
-          trackInfo.album &&
-          trackInfo.album.images &&
-          trackInfo.album.images.length > 0
+          trackInfo?.data?.trackUnion?.albumOfTrack?.coverArt?.sources &&
+          trackInfo.data.trackUnion.albumOfTrack.coverArt.sources.length > 0
         ) {
           // Get medium size image (or the first available if medium doesn't exist)
+          const sources =
+            trackInfo.data.trackUnion.albumOfTrack.coverArt.sources;
           const image =
-            trackInfo.album.images.find(
-              (img: SpotifyImage) => img.height === 300
-            ) || trackInfo.album.images[0];
+            sources.find((img: any) => img.height === 300) || sources[0];
           setAlbumCover(image.url);
         } else {
           setAlbumCover(null);
@@ -377,24 +434,26 @@ const TrackDetails: React.FC<TrackDetailsProps> = ({
     }
   }, [displayedTrack.uri]);
 
+  // not used anymore
   async function getTrackPlayCount(trackUri: string): Promise<number | null> {
     try {
       const trackId = trackUri.split(":").pop();
       if (!trackId) return null;
+      const { Locale, GraphQL } = Spicetify;
 
-      const trackInfo = await Spicetify.CosmosAsync.get(
-        `https://api.spotify.com/v1/tracks/${trackId}`
-      );
+      const trackInfo = await GraphQL.Request(GraphQL.Definitions.getTrack, {
+        uri: displayedTrack.uri,
+        locale: Locale.getLocale(),
+      });
 
-      if (!trackInfo || !trackInfo.album || !trackInfo.album.id) {
+      if (!trackInfo?.data?.trackUnion?.albumOfTrack?.uri) {
         console.error("Could not get album ID for track:", trackUri);
         return null;
       }
 
-      const albumId = trackInfo.album.id;
+      const albumId = trackInfo.data?.trackUnion?.albumOfTrack?.id;
 
       // Use GraphQL -> to get album data with play counts
-      const { Locale, GraphQL } = Spicetify;
       const res = await GraphQL.Request(GraphQL.Definitions.getAlbum, {
         uri: `spotify:album:${albumId}`,
         locale: Locale.getLocale(),
@@ -532,56 +591,45 @@ const TrackDetails: React.FC<TrackDetailsProps> = ({
   };
 
   // Navigation functions
-  const navigateToAlbum = (): void => {
+  const navigateToAlbum = async (): Promise<void> => {
     try {
       if (displayedTrack.uri.startsWith("spotify:local:")) {
         Spicetify.Platform.History.push("/collection/local-files");
         return;
       }
 
-      let albumUri = "";
-
-      if (Spicetify.Player.data?.item?.uri == displayedTrack?.uri) {
-        albumUri = Spicetify.Player.data.item.album.uri;
-      } else {
-        // Try to extract album ID from track URI and build album URI
-        const trackId = displayedTrack.uri.split(":").pop();
-        if (trackId) {
-          Spicetify.CosmosAsync.get(
-            `https://api.spotify.com/v1/tracks/${trackId}`
-          )
-            .then((response) => {
-              if (response && response.album && response.album.id) {
-                const albumId = response.album.id;
-                albumUri = `spotify:album:${albumId}`;
-
-                Spicetify.Platform.History.push(`/album/${albumId}`);
-              }
-            })
-            .catch((error) => {
-              console.error("Error fetching album info:", error);
-              Spicetify.showNotification("Couldn't navigate to album", true);
-            });
-          return; // Exit early since we're using async approach
+      // First check if we have album URI from player data
+      if (Spicetify.Player.data?.item?.uri === displayedTrack.uri) {
+        const albumUri = Spicetify.Player.data.item.album?.uri;
+        if (albumUri) {
+          const albumId = albumUri.split(":").pop();
+          if (albumId) {
+            Spicetify.Platform.History.push(`/album/${albumId}`);
+            return;
+          }
         }
       }
 
+      // Otherwise use SpotifyService
+      const albumUri = await spotifyService.getTrackAlbumUri(
+        displayedTrack.uri
+      );
       if (albumUri) {
         const albumId = albumUri.split(":").pop();
         if (albumId) {
           Spicetify.Platform.History.push(`/album/${albumId}`);
+          return;
         }
-      } else {
-        console.error("Could not determine album URI");
-        Spicetify.showNotification("Couldn't navigate to album", true);
       }
+
+      Spicetify.showNotification("Couldn't navigate to album", true);
     } catch (error) {
       console.error("Error navigating to album:", error);
       Spicetify.showNotification("Error navigating to album", true);
     }
   };
 
-  const navigateToArtist = (artistName: string): void => {
+  const navigateToArtist = async (artistName: string): Promise<void> => {
     try {
       if (displayedTrack.uri.startsWith("spotify:local:")) {
         Spicetify.showNotification(
@@ -591,41 +639,27 @@ const TrackDetails: React.FC<TrackDetailsProps> = ({
         return;
       }
 
-      const trackId = displayedTrack.uri.split(":").pop();
-      if (trackId) {
-        Spicetify.CosmosAsync.get(
-          `https://api.spotify.com/v1/tracks/${trackId}`
-        )
-          .then((response: SpotifyTrackResponse) => {
-            if (response?.artists) {
-              const artist = response.artists.find(
-                (a: SpotifyArtist) => a.name === artistName
-              );
-              if (artist?.id) {
-                Spicetify.Platform.History.push(`/artist/${artist.id}`);
-                return;
-              }
-            }
+      // Use SpotifyService to get artist data
+      const artists = await spotifyService.getTrackArtists(displayedTrack.uri);
+      const artist = artists.find((a) => a.name === artistName);
 
-            // Fallback - search for the artist
-            Spicetify.Platform.History.push(
-              `/search/${encodeURIComponent(artistName)}/artists`
-            );
-          })
-          .catch((error) => {
-            console.error("Error finding artist:", error);
-            Spicetify.Platform.History.push(
-              `/search/${encodeURIComponent(artistName)}/artists`
-            );
-          });
-      } else {
-        Spicetify.Platform.History.push(
-          `/search/${encodeURIComponent(artistName)}/artists`
-        );
+      if (artist?.uri) {
+        const artistId = artist.uri.split(":").pop();
+        if (artistId) {
+          Spicetify.Platform.History.push(`/artist/${artistId}`);
+          return;
+        }
       }
+
+      // Fallback to search
+      Spicetify.Platform.History.push(
+        `/search/${encodeURIComponent(artistName)}/artists`
+      );
     } catch (error) {
       console.error("Error navigating to artist:", error);
-      Spicetify.showNotification("Error navigating to artist", true);
+      Spicetify.Platform.History.push(
+        `/search/${encodeURIComponent(artistName)}/artists`
+      );
     }
   };
 

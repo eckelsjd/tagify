@@ -14,6 +14,7 @@ import {
   faLightbulb,
   faUpload,
 } from "@fortawesome/free-solid-svg-icons";
+import { faDiscord } from "@fortawesome/free-brands-svg-icons";
 import { useLocalStorage } from "@/hooks/shared/useLocalStorage";
 
 interface DataManagerProps {
@@ -39,6 +40,12 @@ const DataManager: React.FC<DataManagerProps> = ({
     SHOW_SUPPORT_BUTTONS_KEY,
     true
   );
+  const [infoModalSection, setInfoModalSection] = useState<string>("whats-new");
+
+  const handleOpenInfoModal = (section: string) => {
+    setInfoModalSection(section);
+    setShowInfoModal(true);
+  };
 
   const handleImportClick = () => {
     if (fileInputRef.current) {
@@ -95,29 +102,28 @@ const DataManager: React.FC<DataManagerProps> = ({
           onClick={onExportTagData}
           title="Backup your tag data"
         >
-          <FontAwesomeIcon icon={faDownload} /> Backup
+          <FontAwesomeIcon icon={faDownload} />
         </button>
         <button
           className={`${styles.pillButton} ${styles.importButton}`}
           onClick={handleImportClick}
           title="Import your tag data"
         >
-          <FontAwesomeIcon icon={faUpload} /> Import
+          <FontAwesomeIcon icon={faUpload} />
         </button>
-
         <button
           className={`${styles.pillButton} ${styles.statsButton}`}
           onClick={onExportRekordbox}
           title="View your tag stats"
         >
-          <FontAwesomeIcon icon={faChartSimple} /> Stats
+          <FontAwesomeIcon icon={faChartSimple} />
         </button>
         <button
           className={`${styles.pillButton} ${styles.infoButton}`}
           onClick={() => setShowInfoModal(true)}
           title="Help & Tutorial"
         >
-          <FontAwesomeIcon icon={faInfo} /> Info
+          <FontAwesomeIcon icon={faInfo} />
         </button>
         {showSupportButtons && (
           <>
@@ -127,10 +133,9 @@ const DataManager: React.FC<DataManagerProps> = ({
                 const formUrl = `https://forms.gle/H4xMyNC2zVAHowPF6`;
                 window.open(formUrl, "_blank", "noopener,noreferrer");
               }}
-              title="Your feedback helps me build better features"
+              title="Give feedback - shape Tagify's future"
             >
               <FontAwesomeIcon icon={faLightbulb} />
-              <span className={styles.buttonText}>Feedback</span>
             </button>
             <button
               className={`${styles.pillButton} ${styles.coffeeButton}`}
@@ -141,13 +146,22 @@ const DataManager: React.FC<DataManagerProps> = ({
                   "noopener,noreferrer"
                 );
               }}
-              title="Love Tagify? Buy me a coffee! :)"
+              title="Support Tagify :)"
             >
               <FontAwesomeIcon icon={faCoffee} />
-              <span className={styles.buttonText}>Support</span>
             </button>
           </>
         )}
+        <button
+          className={`${styles.pillButton} ${styles.discordButton}`}
+          onClick={() => {
+            const discordUrl = "https://discord.gg/C4qbPUbBKV";
+            window.open(discordUrl, "_blank", "noopener,noreferrer");
+          }}
+          title="Join the Discord!"
+        >
+          <FontAwesomeIcon icon={faDiscord} />
+        </button>
       </div>
 
       <input
@@ -175,9 +189,18 @@ const DataManager: React.FC<DataManagerProps> = ({
           onClose={() => setShowMainSettings(false)}
           showSupportButtons={showSupportButtons}
           onToggleSupportButtons={setShowSupportButtons}
+          onOpenInfoModal={handleOpenInfoModal}
         />
       )}
-      {showInfoModal && <InfoModal onClose={() => setShowInfoModal(false)} />}
+      {showInfoModal && (
+        <InfoModal
+          onClose={() => {
+            setShowInfoModal(false);
+            setInfoModalSection("whats-new")
+          }}
+          initialSection={infoModalSection}
+        />
+      )}
     </div>
   );
 };

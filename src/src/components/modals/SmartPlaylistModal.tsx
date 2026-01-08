@@ -211,18 +211,20 @@ const SmartPlaylistModal: React.FC<SmartPlaylistModalProps> = ({
   useEffect(() => {
     const syncPlaylistNames = async () => {
       let hasUpdates = false;
+
       const updatedPlaylists = await Promise.all(
         smartPlaylists.map(async (playlist) => {
           try {
-            const response = await Spicetify.CosmosAsync.get(
-              `https://api.spotify.com/v1/playlists/${playlist.playlistId}?fields=name,description`
-            );
+            const playlistUri = `spotify:playlist:${playlist.playlistId}`;
+            const metadata = await (
+              Spicetify.Platform.PlaylistAPI as any
+            ).getMetadata(playlistUri);
 
-            if (response.name !== playlist.playlistName) {
+            if (metadata?.name && metadata.name !== playlist.playlistName) {
               hasUpdates = true;
               return {
                 ...playlist,
-                playlistName: response.name,
+                playlistName: metadata.name,
               };
             }
 

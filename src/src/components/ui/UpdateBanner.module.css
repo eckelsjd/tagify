@@ -42,6 +42,7 @@
   display: block;
   animation: gentlePulse 3s infinite;
   filter: brightness(1.1);
+  color: #1ed760;
 }
 
 .textSection {
@@ -226,8 +227,102 @@
   animation: expandDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Tab Styles */
+.tabContainer {
+  display: flex;
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+  background: rgb(0 0 0 / 10%);
+}
+
+.tab {
+  flex: 1;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: rgb(255 255 255 / 60%);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.tab:hover {
+  background: rgb(255 255 255 / 5%);
+  color: rgb(255 255 255 / 80%);
+}
+
+.tab.activeTab {
+  color: #1ed760;
+  background: rgb(29 185 84 / 8%);
+}
+
+.tab.activeTab::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #1ed760;
+}
+
+.tabIcon {
+  font-size: 14px;
+}
+
+.tabContent {
+  padding: 16px 18px;
+}
+
+.tabPanel {
+  animation: fadeIn 0.2s ease;
+}
+
+.instructionText {
+  color: rgb(255 255 255 / 80%);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 12px 0;
+}
+
+.helpText {
+  background: rgb(29 185 84 / 10%);
+  border-left: 3px solid rgb(29 185 84 / 40%);
+  padding: 10px 12px;
+  border-radius: 4px;
+  color: rgb(255 255 255 / 70%);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.helpIcon {
+  margin-right: 6px;
+  color: rgb(29 185 84 / 80%);
+}
+
+.downloadButtons {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+/* Changelog Styles */
 .changelogSection {
   padding: 16px 18px;
+}
+
+.changelogHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 12px;
 }
 
 .changelogTitle {
@@ -277,6 +372,40 @@
   margin-bottom: 3px;
 }
 
+.releaseLink {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: rgb(255 255 255 / 50%);
+  font-size: 11px;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.releaseLink:hover {
+  color: rgb(255 255 255 / 80%);
+  background: rgb(255 255 255 / 5%);
+}
+
+.releaseLinkIcon {
+  font-size: 12px;
+}
+
+@media (width <= 480px) {
+  .changelogHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .releaseLink {
+    font-size: 10px;
+  }
+}
+
 /* Animations */
 @keyframes slideIn {
   from {
@@ -294,7 +423,7 @@
   from {
     opacity: 1;
     transform: translateY(0);
-    max-height: 200px;
+    max-height: 400px;
   }
 
   to {
@@ -315,7 +444,17 @@
 
   to {
     opacity: 1;
-    max-height: 220px;
+    max-height: 300px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }
 
@@ -347,6 +486,7 @@
   .actionSection {
     align-self: stretch;
     justify-content: center;
+    flex-wrap: wrap;
   }
 
   .title {
@@ -356,9 +496,36 @@
     text-align: center;
   }
 
-  .primaryButton,
   .secondaryButton {
     flex: 1;
+    min-width: 120px;
+    justify-content: center;
+  }
+
+  .tabContainer {
+    flex-direction: column;
+  }
+
+  .tab {
+    border-bottom: 1px solid rgb(255 255 255 / 8%);
+  }
+
+  .tab.activeTab::after {
+    height: 0;
+    width: 3px;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: auto;
+  }
+
+  .downloadButtons {
+    flex-direction: column;
+  }
+
+  .downloadButtons .primaryButton,
+  .downloadButtons .secondaryButton {
+    width: 100%;
     justify-content: center;
   }
 }
@@ -369,8 +536,8 @@
     gap: 6px;
   }
 
-  .primaryButton,
-  .secondaryButton {
+  .secondaryButton,
+  .dismissButton {
     width: 100%;
   }
 
@@ -379,6 +546,86 @@
   }
 
   .checkboxLabel {
+    font-size: 11px;
+  }
+}
+
+/* Command Block Styles */
+.commandBlock {
+  background: rgb(0 0 0 / 30%);
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+
+.commandHeader {
+  background: rgb(0 0 0 / 20%);
+  padding: 6px 12px;
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+}
+
+.osLabel {
+  color: rgb(255 255 255 / 60%);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.commandContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+}
+
+.commandText {
+  flex: 1;
+  color: #1ed760;
+  font-size: 12px;
+  font-family: "Courier New", Consolas, monospace;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.copyButton {
+  background: rgb(255 255 255 / 8%);
+  border: 1px solid rgb(255 255 255 / 15%);
+  color: rgb(255 255 255 / 80%);
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+.copyButton:hover {
+  background: rgb(255 255 255 / 12%);
+  border-color: rgb(255 255 255 / 25%);
+  color: rgb(255 255 255 / 95%);
+}
+
+.copyButton:active {
+  transform: scale(0.95);
+}
+
+/* Responsive adjustments for command block */
+@media (width <= 480px) {
+  .commandContent {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .copyButton {
+    width: 100%;
+  }
+
+  .commandText {
     font-size: 11px;
   }
 }

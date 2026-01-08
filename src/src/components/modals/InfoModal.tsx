@@ -33,16 +33,26 @@ import {
   faBolt,
   faFilter,
   faCoffee,
+  faKeyboard,
+  faCompactDisc,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGithub } from "@fortawesome/free-brands-svg-icons";
+import {
+  faGithub,
+  faDiscord,
+  faWindows,
+} from "@fortawesome/free-brands-svg-icons";
 
 interface InfoModalProps {
   onClose: () => void;
+  initialSection?: string;
 }
 
-const InfoModal: React.FC<InfoModalProps> = ({ onClose }) => {
-  const [activeSection, setActiveSection] = useState("whats-new");
+const InfoModal: React.FC<InfoModalProps> = ({
+  onClose,
+  initialSection = "whats-new",
+}) => {
+  const [activeSection, setActiveSection] = useState(initialSection);
 
   const sections = [
     { id: "whats-new", title: "What's New", icon: faBullhorn },
@@ -50,12 +60,17 @@ const InfoModal: React.FC<InfoModalProps> = ({ onClose }) => {
     { id: "getting-started", title: "Getting Started", icon: faBaby },
     { id: "tagging", title: "Tagging System", icon: faTag },
     { id: "features", title: "Features", icon: faStar },
+    { id: "shortcuts", title: "Shortcuts", icon: faKeyboard },
+    { id: "installer", title: "Installer", icon: faDownload },
     { id: "roadmap", title: "What's Coming", icon: faRocket },
   ];
 
   const getReleaseUrl = (version: string) => {
     return `https://github.com/alexk218/tagify/releases/tag/v${version}`;
   };
+
+  const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+  const modKey = isMac ? "Cmd" : "Ctrl";
 
   return (
     <Portal>
@@ -160,211 +175,344 @@ const InfoModal: React.FC<InfoModalProps> = ({ onClose }) => {
                 </div>
               )}
 
-              {/* TAGIFY 2.1.0 */}
               {activeSection === "whats-new" && (
                 <div className={styles.section}>
+                  {/* TAGIFY 2.2.0 */}
                   <div className={styles.whatsNewHeader}>
                     <h3 className={styles.sectionTitle}>
                       <a
-                        href={getReleaseUrl("2.1.0")}
+                        href={getReleaseUrl("2.2.0")}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        What's New in Tagify 2.1.0
+                        What's New in Tagify 2.2.0
                       </a>
                     </h3>
                   </div>
 
-                  {/* Bulk Ratings Feature */}
+                  {/* Tagify Installer */}
                   <div className={styles.featureGroup}>
                     <div className={styles.featureHeader}>
                       <span className={styles.featureIcon}>
-                        <FontAwesomeIcon icon={faStar} />
+                        <FontAwesomeIcon icon={faDownload} />
                       </span>
                       <h4 className={styles.featureTitle}>
-                        Bulk Ratings & Energy
+                        Tagify Website & Installer
                       </h4>
                       <span className={styles.newBadge}>NEW</span>
                     </div>
                     <p className={styles.featureDescription}>
-                      The bulk tagging interface now supports{" "}
-                      <strong>star ratings</strong> and{" "}
-                      <strong>energy levels</strong> in addition to tags. Apply
-                      ratings to multiple tracks at once, or use track locking
-                      to set individual ratings within bulk mode.
+                      Introducing <strong>tagify.fm</strong> and{" "}
+                      <strong>TagifyInstaller</strong> - a fully automated
+                      installer for Spicetify & Tagify! No more command line
+                      tinkering required.
                     </p>
-
-                    <div className={styles.usageInstructions}>
-                      <strong>How to bulk tag:</strong> Select multiple tracks
-                      in any playlist, right-click, and choose{" "}
-                      <strong>"Bulk Tag"</strong> to open the bulk tagging
-                      interface.
+                    <div className={styles.installerLinks}>
+                      <a
+                        href="https://tagify.fm"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.websiteLink}
+                      >
+                        tagify.fm
+                        <FontAwesomeIcon
+                          icon={faArrowUpRightFromSquare}
+                          className={styles.externalLinkIcon}
+                        />
+                      </a>
+                      <button
+                        className={styles.learnMoreLink}
+                        onClick={() => setActiveSection("installer")}
+                      >
+                        Learn More
+                        <FontAwesomeIcon
+                          icon={faArrowUpRightFromSquare}
+                          className={styles.externalLinkIcon}
+                        />
+                      </button>
                     </div>
                   </div>
 
-                  {/* TAGIFY 2.0.0 */}
+                  {/* Keyboard Shortcuts Feature */}
+                  <div className={styles.featureGroup}>
+                    <div className={styles.featureHeader}>
+                      <span className={styles.featureIcon}>
+                        <FontAwesomeIcon icon={faKeyboard} />
+                      </span>
+                      <h4 className={styles.featureTitle}>
+                        Keyboard Shortcuts
+                      </h4>
+                      <span className={styles.newBadge}>NEW</span>
+                    </div>
+                    <p className={styles.featureDescription}>
+                      Speed up your tagging workflow with new keyboard shortcuts
+                      for star ratings, energy levels, and more. Check out the{" "}
+                      <button
+                        className={styles.inlineLink}
+                        onClick={() => setActiveSection("shortcuts")}
+                      >
+                        Shortcuts section
+                      </button>{" "}
+                      for the full list.
+                    </p>
+                  </div>
+
+                  {/* Discord Community */}
+                  <div className={styles.featureGroup}>
+                    <div className={styles.featureHeader}>
+                      <span className={styles.featureIcon}>
+                        <FontAwesomeIcon icon={faDiscord} />
+                      </span>
+                      <h4 className={styles.featureTitle}>Discord Community</h4>
+                      <span className={styles.newBadge}>NEW</span>
+                    </div>
+                    <p className={styles.featureDescription}>
+                      Join the Tagify community on Discord! Get help, share your
+                      setups, suggest features, and connect with other Tagify
+                      users.
+                    </p>
+                    <a
+                      href="https://discord.gg/C4qbPUbBKV"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.discordLink}
+                    >
+                      <FontAwesomeIcon icon={faDiscord} />
+                      Join our Discord
+                      <FontAwesomeIcon
+                        icon={faArrowUpRightFromSquare}
+                        className={styles.externalLinkIcon}
+                      />
+                    </a>
+                  </div>
+
+                  {/* Bug Fixes */}
+                  <div className={styles.featureGroup}>
+                    <div className={styles.featureHeader}>
+                      <span className={styles.featureIcon}>
+                        <FontAwesomeIcon icon={faBug} />
+                      </span>
+                      <h4 className={styles.featureTitle}>Bug Fixes</h4>
+                    </div>
+                    <div className={styles.bugFixList}>
+                      <div className={styles.bugFix}>
+                        <span className={styles.bugFixIcon}>
+                          <FontAwesomeIcon icon={faBolt} />
+                        </span>
+                        <div>
+                          <strong>Stability improvements:</strong> Fixed crashes
+                          that occurred on some users' devices
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* TAGIFY 2.1.0 */}
                   <div className={styles.section}>
                     <div className={styles.whatsNewHeader}>
                       <h3 className={styles.sectionTitle}>
                         <a
-                          href={getReleaseUrl("2.0.0")}
+                          href={getReleaseUrl("2.1.0")}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          What's New in Tagify 2.0.0
+                          What's New in Tagify 2.1.0
                         </a>
                       </h3>
                     </div>
 
-                    {/* Smart Playlists Feature */}
+                    {/* Bulk Ratings Feature */}
                     <div className={styles.featureGroup}>
                       <div className={styles.featureHeader}>
                         <span className={styles.featureIcon}>
-                          <FontAwesomeIcon icon={faBrain} />
+                          <FontAwesomeIcon icon={faStar} />
                         </span>
-                        <h4 className={styles.featureTitle}>Smart Playlists</h4>
-                        <span className={styles.newBadge}>NEW</span>
+                        <h4 className={styles.featureTitle}>
+                          Bulk Ratings & Energy
+                        </h4>
                       </div>
                       <p className={styles.featureDescription}>
-                        Create playlists that automatically stay up-to-date. Set
-                        your criteria once, and every track you tag that matches
-                        will be <strong>instantly added</strong> - no manual
-                        playlist management needed!.
+                        The bulk tagging interface now supports{" "}
+                        <strong>star ratings</strong> and{" "}
+                        <strong>energy levels</strong> in addition to tags.
+                        Apply ratings to multiple tracks at once, or use track
+                        locking to set individual ratings within bulk mode.
                       </p>
 
-                      {/* Visual Tutorial */}
-                      <div className={styles.visualTutorial}>
-                        {/* Step 1: Creating Smart Playlist */}
-                        <div className={styles.tutorialStep}>
-                          <div className={styles.stepInfo}>
-                            <div className={styles.stepBadge}>Step 1</div>
-                            <div className={styles.stepDetails}>
-                              <h6 className={styles.stepTitle}>
-                                Define Your Smart Playlist
-                              </h6>
-                              <p className={styles.stepDesc}>
-                                Choose your filters: star ratings, custom tags,
-                                energy levels, or BPM ranges. <br />
-                                This example uses <strong>5 star</strong> tracks
-                                tagged <strong>Disco</strong>.
-                              </p>
-                            </div>
-                          </div>
-                          <div className={styles.gifContainer}>
-                            <img
-                              src="https://raw.githubusercontent.com/alexk218/tagify/main/src/assets/CREATING_SMART_PLAYLIST.gif"
-                              alt="Creating a smart playlist with 5 star rating and Disco tag criteria"
-                              className={styles.tutorialGif}
-                              loading="lazy"
-                            />
-                            <div className={styles.gifCaption}>
-                              Defining the rules for automatic playlist creation
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Step 2: Automatic Addition */}
-                        <div className={styles.tutorialStep}>
-                          <div className={styles.stepInfo}>
-                            <div className={styles.stepBadge}>Step 2</div>
-                            <div className={styles.stepDetails}>
-                              <h6 className={styles.stepTitle}>
-                                Watch the Magic Happen
-                              </h6>
-                              <p className={styles.stepDesc}>
-                                Now, when tagging any track with{" "}
-                                <strong>5 stars</strong> and the{" "}
-                                <strong>Disco</strong> tag - it jumps into your
-                                playlist automatically.
-                              </p>
-                            </div>
-                          </div>
-                          <div className={styles.gifContainer}>
-                            <img
-                              src="https://raw.githubusercontent.com/alexk218/tagify/main/src/assets/SATISFYING_SMART_CRITERIA.gif"
-                              alt="Tagging a track that automatically gets added to the smart playlist"
-                              className={styles.tutorialGif}
-                              loading="lazy"
-                            />
-                            <div className={styles.gifCaption}>
-                              Track automatically added to playlist when
-                              criteria are satisfied
-                            </div>
-                          </div>
-                        </div>
+                      <div className={styles.usageInstructions}>
+                        <strong>How to bulk tag:</strong> Select multiple tracks
+                        in any playlist, right-click, and choose{" "}
+                        <strong>"Bulk Tag"</strong> to open the bulk tagging
+                        interface.
                       </div>
                     </div>
 
-                    {/* Bug Fixes */}
-                    <div className={styles.featureGroup}>
-                      <div className={styles.featureHeader}>
-                        <span className={styles.featureIcon}>
-                          <FontAwesomeIcon icon={faBug} />
-                        </span>
-                        <h4 className={styles.featureTitle}>Bug Fixes</h4>
+                    {/* TAGIFY 2.0.0 */}
+                    <div className={styles.section}>
+                      <div className={styles.whatsNewHeader}>
+                        <h3 className={styles.sectionTitle}>
+                          <a
+                            href={getReleaseUrl("2.0.0")}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            What's New in Tagify 2.0.0
+                          </a>
+                        </h3>
                       </div>
-                      <div className={styles.bugFixList}>
-                        <div className={styles.bugFix}>
-                          <span className={styles.bugFixIcon}>
-                            <FontAwesomeIcon icon={faLock} />
-                          </span>
-                          <div>
-                            <strong>Lock state persistence:</strong> Fixed issue
-                            where lock state didn't persist after exiting the
-                            app
-                          </div>
-                        </div>
-                        <div className={styles.bugFix}>
-                          <span className={styles.bugFixIcon}>
-                            <FontAwesomeIcon icon={faBolt} />
-                          </span>
-                          <div>
-                            <strong>Instant tag application:</strong> Tags are
-                            now applied immediately - no more waiting or losing
-                            changes when quickly leaving the app
-                          </div>
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Improvements */}
-                    <div className={styles.featureGroup}>
-                      <div className={styles.featureHeader}>
-                        <span className={styles.featureIcon}>
-                          <FontAwesomeIcon icon={faWandMagicSparkles} />
-                        </span>
-                        <h4 className={styles.featureTitle}>Improvements</h4>
+                      {/* Smart Playlists Feature */}
+                      <div className={styles.featureGroup}>
+                        <div className={styles.featureHeader}>
+                          <span className={styles.featureIcon}>
+                            <FontAwesomeIcon icon={faBrain} />
+                          </span>
+                          <h4 className={styles.featureTitle}>
+                            Smart Playlists
+                          </h4>
+                        </div>
+                        <p className={styles.featureDescription}>
+                          Create playlists that automatically stay up-to-date.
+                          Set your criteria once, and every track you tag that
+                          matches will be <strong>instantly added</strong> - no
+                          manual playlist management needed!.
+                        </p>
+
+                        {/* Visual Tutorial */}
+                        <div className={styles.visualTutorial}>
+                          {/* Step 1: Creating Smart Playlist */}
+                          <div className={styles.tutorialStep}>
+                            <div className={styles.stepInfo}>
+                              <div className={styles.stepBadge}>Step 1</div>
+                              <div className={styles.stepDetails}>
+                                <h6 className={styles.stepTitle}>
+                                  Define Your Smart Playlist
+                                </h6>
+                                <p className={styles.stepDesc}>
+                                  Choose your filters: star ratings, custom
+                                  tags, energy levels, or BPM ranges. <br />
+                                  This example uses <strong>5 star</strong>{" "}
+                                  tracks tagged <strong>Disco</strong>.
+                                </p>
+                              </div>
+                            </div>
+                            <div className={styles.gifContainer}>
+                              <img
+                                src="https://raw.githubusercontent.com/alexk218/tagify/main/src/assets/CREATING_SMART_PLAYLIST.gif"
+                                alt="Creating a smart playlist with 5 star rating and Disco tag criteria"
+                                className={styles.tutorialGif}
+                                loading="lazy"
+                              />
+                              <div className={styles.gifCaption}>
+                                Defining the rules for automatic playlist
+                                creation
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Step 2: Automatic Addition */}
+                          <div className={styles.tutorialStep}>
+                            <div className={styles.stepInfo}>
+                              <div className={styles.stepBadge}>Step 2</div>
+                              <div className={styles.stepDetails}>
+                                <h6 className={styles.stepTitle}>
+                                  Watch the Magic Happen
+                                </h6>
+                                <p className={styles.stepDesc}>
+                                  Now, when tagging any track with{" "}
+                                  <strong>5 stars</strong> and the{" "}
+                                  <strong>Disco</strong> tag - it jumps into
+                                  your playlist automatically.
+                                </p>
+                              </div>
+                            </div>
+                            <div className={styles.gifContainer}>
+                              <img
+                                src="https://raw.githubusercontent.com/alexk218/tagify/main/src/assets/SATISFYING_SMART_CRITERIA.gif"
+                                alt="Tagging a track that automatically gets added to the smart playlist"
+                                className={styles.tutorialGif}
+                                loading="lazy"
+                              />
+                              <div className={styles.gifCaption}>
+                                Track automatically added to playlist when
+                                criteria are satisfied
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className={styles.improvementList}>
-                        <div className={styles.improvement}>
-                          <span className={styles.improvementIcon}>
+
+                      {/* Bug Fixes */}
+                      <div className={styles.featureGroup}>
+                        <div className={styles.featureHeader}>
+                          <span className={styles.featureIcon}>
+                            <FontAwesomeIcon icon={faBug} />
+                          </span>
+                          <h4 className={styles.featureTitle}>Bug Fixes</h4>
+                        </div>
+                        <div className={styles.bugFixList}>
+                          <div className={styles.bugFix}>
+                            <span className={styles.bugFixIcon}>
+                              <FontAwesomeIcon icon={faLock} />
+                            </span>
+                            <div>
+                              <strong>Lock state persistence:</strong> Fixed
+                              issue where lock state didn't persist after
+                              exiting the app
+                            </div>
+                          </div>
+                          <div className={styles.bugFix}>
+                            <span className={styles.bugFixIcon}>
+                              <FontAwesomeIcon icon={faBolt} />
+                            </span>
+                            <div>
+                              <strong>Instant tag application:</strong> Tags are
+                              now applied immediately - no more waiting or
+                              losing changes when quickly leaving the app
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Improvements */}
+                      <div className={styles.featureGroup}>
+                        <div className={styles.featureHeader}>
+                          <span className={styles.featureIcon}>
                             <FontAwesomeIcon icon={faWandMagicSparkles} />
                           </span>
-                          <div>
-                            <strong>Visual enhancements:</strong> Tagify is
-                            prettier
-                          </div>
+                          <h4 className={styles.featureTitle}>Improvements</h4>
                         </div>
-                        <div className={styles.improvement}>
-                          <span className={styles.improvementIcon}>
-                            <FontAwesomeIcon icon={faChartBar} />
-                          </span>
-                          <div>
-                            <strong>Real-time tracklist updates:</strong> Fixed
-                            persistent orange bullets for empty tracks. The
-                            tracklist column extension now shows accurate,
-                            up-to-date tag data
+                        <div className={styles.improvementList}>
+                          <div className={styles.improvement}>
+                            <span className={styles.improvementIcon}>
+                              <FontAwesomeIcon icon={faWandMagicSparkles} />
+                            </span>
+                            <div>
+                              <strong>Visual enhancements:</strong> Tagify is
+                              prettier
+                            </div>
                           </div>
-                        </div>
-                        <div className={styles.improvement}>
-                          <span className={styles.improvementIcon}>
-                            <FontAwesomeIcon icon={faMusic} />
-                          </span>
-                          <div>
-                            <strong>Live playbar updates:</strong> Playbar
-                            enhancer now updates in real-time based on track
-                            tags, ratings, and energy. No more page refreshes
-                            needed!
+                          <div className={styles.improvement}>
+                            <span className={styles.improvementIcon}>
+                              <FontAwesomeIcon icon={faChartBar} />
+                            </span>
+                            <div>
+                              <strong>Real-time tracklist updates:</strong>{" "}
+                              Fixed persistent orange bullets for empty tracks.
+                              The tracklist column extension now shows accurate,
+                              up-to-date tag data
+                            </div>
+                          </div>
+                          <div className={styles.improvement}>
+                            <span className={styles.improvementIcon}>
+                              <FontAwesomeIcon icon={faMusic} />
+                            </span>
+                            <div>
+                              <strong>Live playbar updates:</strong> Playbar
+                              enhancer now updates in real-time based on track
+                              tags, ratings, and energy. No more page refreshes
+                              needed!
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -581,9 +729,8 @@ const InfoModal: React.FC<InfoModalProps> = ({ onClose }) => {
                         Sometimes Spotify doesn't get the BPM right...
                         <br />
                         Click any BPM value to edit manually, or use the refresh
-                        button (<FontAwesomeIcon icon={faRocket} />) to fetch
-                        updated BPM from Spotify's audio analysis. Perfect for
-                        creating tempo-specific playlists.
+                        button (↻) to fetch updated BPM from Spotify's audio
+                        analysis. Perfect for creating tempo-specific playlists.
                       </p>
                     </div>
 
@@ -714,6 +861,250 @@ const InfoModal: React.FC<InfoModalProps> = ({ onClose }) => {
                 </div>
               )}
 
+              {activeSection === "shortcuts" && (
+                <div className={styles.section}>
+                  <h3 className={styles.sectionTitle}>Keyboard Shortcuts</h3>
+                  <p className={styles.text}>
+                    Speed up your tagging workflow with these keyboard
+                    shortcuts.
+                  </p>
+                  <div className={styles.shortcutsContainer}>
+                    {/* Star Ratings */}
+                    <div className={styles.shortcutGroup}>
+                      <h4 className={styles.shortcutGroupTitle}>
+                        <FontAwesomeIcon icon={faStar} />
+                        Star Ratings
+                      </h4>
+                      <div className={styles.shortcutItem}>
+                        <div className={styles.shortcutKeys}>
+                          <kbd>1</kbd>-<kbd>0</kbd>
+                        </div>
+                        <div className={styles.shortcutDesc}>
+                          Set star rating (0.5-5 stars)
+                        </div>
+                      </div>
+                    </div>
+                    {/* Energy Ratings */}
+                    <div className={styles.shortcutGroup}>
+                      <h4 className={styles.shortcutGroupTitle}>
+                        <FontAwesomeIcon icon={faBolt} />
+                        Energy Ratings
+                      </h4>
+                      <div className={styles.shortcutItem}>
+                        <div className={styles.shortcutKeys}>
+                          <kbd>Shift</kbd> + <kbd>1</kbd>-<kbd>0</kbd>
+                        </div>
+                        <div className={styles.shortcutDesc}>
+                          Set energy level (1-10)
+                        </div>
+                      </div>
+                    </div>
+                    {/* Bulk Tagger */}
+                    <div className={styles.shortcutGroup}>
+                      <h4 className={styles.shortcutGroupTitle}>
+                        <FontAwesomeIcon icon={faBox} />
+                        Bulk Tagger
+                      </h4>
+                      <div className={styles.shortcutItem}>
+                        <div className={styles.shortcutKeys}>
+                          <kbd>{modKey}</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>
+                        </div>
+                        <div className={styles.shortcutDesc}>Save changes</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.shortcutNote}>
+                    <FontAwesomeIcon icon={faLightbulb} />
+                    <span>
+                      <strong>Note:</strong> When Tagify is not open, shortcuts
+                      apply to the <em>currently playing track</em> - not the
+                      locked track.
+                    </span>
+                  </div>
+                  <div className={styles.shortcutFeedback}>
+                    <p>
+                      Have ideas for more useful shortcuts?{" "}
+                      <a
+                        href="https://github.com/alexk218/tagify/discussions/categories/ideas-feature-requests"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Let us know in our feature requests board!
+                        <FontAwesomeIcon
+                          icon={faArrowUpRightFromSquare}
+                          className={styles.externalLinkIcon}
+                        />
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {activeSection === "installer" && (
+                <div className={styles.section}>
+                  <h3 className={styles.sectionTitle}>Tagify Installer</h3>
+
+                  <div className={styles.installerHero}>
+                    <div className={styles.installerPreview}>
+                      <img
+                        src="https://raw.githubusercontent.com/alexk218/tagify/main/src/assets/INSTALLER_PREVIEW.png"
+                        alt="Tagify Installer Preview"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className={styles.installerHeroText}>
+                      <p>
+                        A fully automated installer for{" "}
+                        <strong>Spicetify</strong> & <strong>Tagify</strong>.
+                      </p>
+
+                      <a
+                        href="https://github.com/alexk218/tagify-installer/releases"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.platformBadge}
+                      >
+                        <FontAwesomeIcon icon={faWindows} />
+                        Windows only (for now)
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className={styles.installerFeatures}>
+                    <h4>What does it do?</h4>
+                    <div className={styles.installerFeatureList}>
+                      <div className={styles.installerFeatureItem}>
+                        <span className={styles.installerFeatureIcon}>
+                          <FontAwesomeIcon icon={faDownload} />
+                        </span>
+                        <div>
+                          <strong>Install</strong>
+                          <p>
+                            Automatically installs Spicetify and Tagify from
+                            scratch
+                          </p>
+                        </div>
+                      </div>
+                      <div className={styles.installerFeatureItem}>
+                        <span className={styles.installerFeatureIcon}>
+                          <FontAwesomeIcon icon={faRocket} />
+                        </span>
+                        <div>
+                          <strong>Update</strong>
+                          <p>
+                            Keep Spicetify and Tagify up-to-date with one click
+                          </p>
+                        </div>
+                      </div>
+                      <div className={styles.installerFeatureItem}>
+                        <span className={styles.installerFeatureIcon}>
+                          <FontAwesomeIcon icon={faWandMagicSparkles} />
+                        </span>
+                        <div>
+                          <strong>Repair</strong>
+                          <p>Fix broken Spicetify states automatically</p>
+                        </div>
+                      </div>
+                      <div className={styles.installerFeatureItem}>
+                        <span className={styles.installerFeatureIcon}>
+                          <FontAwesomeIcon icon={faBrain} />
+                        </span>
+                        <div>
+                          <strong>Smart Detection</strong>
+                          <p>
+                            Automatically detects your installation state and
+                            performs the required actions
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={styles.installerWarning}>
+                    <div className={styles.warningHeader}>
+                      <FontAwesomeIcon icon={faLock} />
+                      <strong>Important: Keep the Installer!</strong>
+                    </div>
+                    <p>
+                      Don't delete the installer after running it! You'll need
+                      it again because:
+                    </p>
+                    <ul>
+                      <li>
+                        <strong>Spotify updates</strong> often break or disable
+                        Spicetify - run the installer to repair it
+                      </li>
+                      <li>
+                        <strong>Spicetify updates</strong> - run the installer
+                        to apply them
+                      </li>
+                      <li>
+                        <strong>New Tagify versions</strong> - run the installer
+                        to update
+                      </li>
+                    </ul>
+                    <p className={styles.warningTip}>
+                      💡 <strong>Tip:</strong> Whenever Tagify isn't visible in
+                      Spotify - it's likely that your Spotify has updated. Open
+                      the installer and execute to fix!
+                    </p>
+                  </div>
+
+                  <div className={styles.installerNote}>
+                    <FontAwesomeIcon icon={faLightbulb} />
+                    <span>
+                      <strong>Security Note:</strong> The installer certificate
+                      is pending - you may see a Windows security warning when
+                      downloading. The installer is safe, but you'll have to
+                      trust me for now! 😅
+                    </span>
+                  </div>
+
+                  <div className={styles.sourceCodeLink}>
+                    <FontAwesomeIcon icon={faGithub} />
+                    <a
+                      href="https://github.com/alexk218/tagify/blob/main/Install-Tagify-Full.ps1"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View the source code
+                      <FontAwesomeIcon
+                        icon={faArrowUpRightFromSquare}
+                        className={styles.externalLinkIcon}
+                      />
+                    </a>
+                  </div>
+
+                  <div className={styles.installerCta}>
+                    <a
+                      href="https://tagify.fm"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.websiteLink}
+                    >
+                      tagify.fm
+                      <FontAwesomeIcon
+                        icon={faArrowUpRightFromSquare}
+                        className={styles.externalLinkIcon}
+                      />
+                    </a>
+                    <a
+                      href="https://github.com/alexk218/tagify-installer/releases"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.installerDownloadLink}
+                    >
+                      <FontAwesomeIcon icon={faDownload} />
+                      Download Installer
+                      <FontAwesomeIcon
+                        icon={faArrowUpRightFromSquare}
+                        className={styles.externalLinkIcon}
+                      />
+                    </a>
+                  </div>
+                </div>
+              )}
+
               {activeSection === "roadmap" && (
                 <div className={styles.section}>
                   <h3 className={styles.sectionTitle}>What's Coming Next...</h3>
@@ -776,19 +1167,6 @@ const InfoModal: React.FC<InfoModalProps> = ({ onClose }) => {
                       </p>
                     </div>
 
-                    <div className={styles.roadmapItem}>
-                      <div className={styles.roadmapHeader}>
-                        <span className={styles.roadmapIcon}>
-                          <FontAwesomeIcon icon={faDownload} />
-                        </span>
-                        <h4 className={styles.roadmapTitle}>Download Tracks</h4>
-                        <span className={styles.plannedBadge}>Planned</span>
-                      </div>
-                      <p className={styles.roadmapDescription}>
-                        Download tracks directly within Spotify for offline
-                        organization!
-                      </p>
-                    </div>
                     {/* Community Section */}
                     <div className={styles.communitySection}>
                       <div className={styles.communityHeader}>
@@ -872,7 +1250,7 @@ const InfoModal: React.FC<InfoModalProps> = ({ onClose }) => {
                   href="https://github.com/alexk218/tagify"
                   target="_blank"
                   rel="noopener noreferrer"
-                  title="Help others discover Tagify - star the repo! (please)"
+                  title="Help others discover Tagify - star the repo!"
                   className={styles.githubLink}
                 >
                   <FontAwesomeIcon
@@ -892,7 +1270,7 @@ const InfoModal: React.FC<InfoModalProps> = ({ onClose }) => {
                   href="https://buymeacoffee.com/alexk218"
                   target="_blank"
                   rel="noopener noreferrer"
-                  title="Give Alex a coffee :) (he probably needs it)"
+                  title="Give Alex a coffee :)"
                   className={styles.githubLink}
                 >
                   <FontAwesomeIcon
@@ -904,6 +1282,24 @@ const InfoModal: React.FC<InfoModalProps> = ({ onClose }) => {
                       {
                         "--fa-animation-duration": "5s",
                         "--fa-bounce-height": "-15px",
+                      } as React.CSSProperties & Record<string, string>
+                    }
+                  />
+                </a>
+                <a
+                  href="https://www.tagify.fm"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Visit our website"
+                  className={styles.githubLink}
+                >
+                  <FontAwesomeIcon
+                    icon={faCompactDisc}
+                    size="lg"
+                    spin
+                    style={
+                      {
+                        "--fa-animation-duration": "4s",
                       } as React.CSSProperties & Record<string, string>
                     }
                   />

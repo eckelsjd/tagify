@@ -2,18 +2,19 @@ import React from "react";
 import styles from "./MainSettingsModal.module.css";
 import Portal from "@/components/ui/Portal";
 import { useLocalStorage } from "@/hooks/shared/useLocalStorage";
-import { keyboardShortcutService } from "@/services/KeyboardShortcutService";
 
 interface MainSettingsModalProps {
   onClose: () => void;
   showSupportButtons: boolean;
   onToggleSupportButtons: (showSupportButtons: boolean) => void;
+  onOpenInfoModal?: (section: string) => void;
 }
 
 const MainSettingsModal: React.FC<MainSettingsModalProps> = ({
   onClose,
   showSupportButtons,
   onToggleSupportButtons,
+  onOpenInfoModal,
 }) => {
   const [extensionSettings, setExtensionSettings] = useLocalStorage<{
     enableTracklistEnhancer: boolean;
@@ -52,6 +53,11 @@ const MainSettingsModal: React.FC<MainSettingsModalProps> = ({
     );
   };
 
+  const handleShortcutsLinkClick = () => {
+    onClose();
+    onOpenInfoModal?.("shortcuts");
+  };
+
   return (
     <Portal>
       <div className={styles.modalOverlay} onClick={onClose}>
@@ -72,7 +78,13 @@ const MainSettingsModal: React.FC<MainSettingsModalProps> = ({
                   </label>
                   <span className={styles.toggleDescription}>
                     Use number keys to set ratings (1-0 for stars, Shift+1-0 for
-                    energy)
+                    energy) and more.{" "}
+                    <button
+                      className={styles.inlineLink}
+                      onClick={handleShortcutsLinkClick}
+                    >
+                      View all shortcuts
+                    </button>
                   </span>
                 </div>
                 <label className={styles.toggleSwitch}>

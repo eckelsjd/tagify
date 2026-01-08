@@ -5,12 +5,12 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10000; /* Higher than other modals */
+  z-index: 10000;
   overflow: auto;
 }
 
 .modal {
-  background: var(--spice-card);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2525 100%);
   border-radius: 16px;
   width: 90%;
   max-width: 600px;
@@ -40,11 +40,7 @@
 .modalHeader {
   padding: 24px 24px 16px;
   border-bottom: 1px solid rgb(255 255 255 / 10%);
-  background: linear-gradient(
-    135deg,
-    rgb(29 185 84 / 10%),
-    rgb(30 144 255 / 10%)
-  );
+  background: linear-gradient(135deg, #151515 0%, #1f1f1f 100%);
 }
 
 .titleSection {
@@ -120,12 +116,12 @@
 
 .optionButton:hover {
   background: rgb(255 255 255 / 8%);
-  border-color: rgb(30 144 255 / 30%);
+  border-color: rgb(255 184 77 / 25%);
 }
 
 .optionSelected {
-  background: rgb(30 144 255 / 15%) !important;
-  border-color: #1e90ff !important;
+  background: rgb(255 184 77 / 12%) !important;
+  border-color: rgb(255 184 77) !important;
 }
 
 .optionText {
@@ -145,15 +141,11 @@
 }
 
 .optionSelected .radioIndicator {
-  border-color: #1e90ff;
+  border-color: rgb(255 184 77);
 }
 
 .radioSelected {
-  width: 10px;
-  height: 10px;
-  background: #1e90ff;
-  border-radius: 50%;
-  animation: radioPopIn 0.2s ease-out;
+  background: rgb(255 184 77);
 }
 
 @keyframes radioPopIn {
@@ -177,7 +169,7 @@
   padding: 12px;
   background-color: rgb(255 255 255 / 5%);
   border-radius: 8px;
-  border-left: 3px solid var(--spice-accent, #1db954);
+  border-left: 3px solid rgb(255 184 77);
 }
 
 .inlineLabel {
@@ -201,7 +193,7 @@
 
 .inlineInput:focus {
   outline: none;
-  border-color: var(--spice-accent, #1db954);
+  border-color: rgb(255 184 77);
 }
 
 /* Footer Styles */
@@ -241,8 +233,8 @@
 
 .submitButton {
   padding: 12px 24px;
-  background: linear-gradient(135deg, #1db954, #1ed760);
-  border: none;
+  background: rgb(255 255 255 / 8%);
+  border: 1px solid rgb(255 255 255 / 12%);
   border-radius: 8px;
   color: white;
   font-size: 14px;
@@ -265,9 +257,9 @@
 }
 
 .submitButton:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1ed760, #1db954);
+  background: rgb(255 255 255 / 12%);
+  border-color: rgb(255 255 255 / 20%);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgb(29 185 84 / 30%);
 }
 
 /* Loading Spinner */

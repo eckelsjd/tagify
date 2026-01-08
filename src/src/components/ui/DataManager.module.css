@@ -6,7 +6,6 @@
   background: linear-gradient(135deg, rgb(0 0 0 / 10%), rgb(0 0 0 / 5%));
   border-radius: 12px;
   border: 1px solid rgb(255 255 255 / 5%);
-  container-type: inline-size; /* Enable container queries */
 }
 
 /* ! PILL BUTTONS */
@@ -76,11 +75,14 @@
   border-color: rgb(191 111 59 / 50%);
 }
 
-/* Hide support button text when container is narrow */
-@container (max-width: 600px) {
-  .buttonText {
-    display: none;
-  }
+.pillButton.discordButton {
+  border: 1px solid rgb(88 101 242 / 15%);
+  background: rgb(88 101 242 / 5%);
+}
+
+.pillButton.discordButton:hover {
+  background: rgb(88 101 242 / 30%);
+  border-color: rgb(88 101 242 / 50%);
 }
 
 /* ! Right side - Backup status & settings */

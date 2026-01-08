@@ -1019,3 +1019,511 @@
   color: var(--spice-text);
   line-height: 1.4;
 }
+
+/* Inline link button */
+.inlineLink {
+  background: none;
+  border: none;
+  color: var(--spice-accent);
+  cursor: pointer;
+  font-size: inherit;
+  font-weight: 600;
+  padding: 0;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.inlineLink:hover {
+  color: #1ed760;
+}
+
+/* Discord link */
+.discordLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #5865f2, #7289da);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  margin-top: 12px;
+}
+
+.discordLink:hover {
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+/* Installer styles */
+.installerNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgb(255 193 7 / 10%);
+  border: 1px solid rgb(255 193 7 / 30%);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 12px 0;
+  font-size: 13px;
+  color: var(--spice-text);
+  line-height: 1.5;
+}
+
+.installerLinks {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.websiteLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.websiteLink:hover {
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.installerLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgb(255 255 255 / 10%);
+  border: 1px solid rgb(255 255 255 / 20%);
+  color: var(--spice-text);
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.installerLink:hover {
+  background: rgb(255 255 255 / 15%);
+  border-color: rgb(255 255 255 / 30%);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+/* Shortcuts section styles */
+.shortcutsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin: 24px 0;
+}
+
+.shortcutGroup {
+  background: rgb(0 0 0 / 20%);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgb(255 255 255 / 10%);
+}
+
+.shortcutGroupTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--spice-text);
+  margin: 0 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+}
+
+.shortcutItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgb(255 255 255 / 5%);
+}
+
+.shortcutItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.shortcutKeys {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.shortcutKeys kbd {
+  background: rgb(255 255 255 / 10%);
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--spice-text);
+  box-shadow: 0 2px 0 rgb(0 0 0 / 20%);
+}
+
+.shortcutDesc {
+  color: var(--spice-subtext);
+  font-size: 14px;
+  text-align: right;
+}
+
+.shortcutNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgb(30 144 255 / 10%);
+  border: 1px solid rgb(30 144 255 / 30%);
+  border-radius: 8px;
+  padding: 14px;
+  margin: 20px 0;
+  font-size: 14px;
+  color: var(--spice-text);
+  line-height: 1.5;
+}
+
+.shortcutFeedback {
+  margin-top: 24px;
+  padding: 16px;
+  background: rgb(255 255 255 / 2%);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.shortcutFeedback p {
+  margin: 0;
+  color: var(--spice-subtext);
+  font-size: 14px;
+}
+
+.shortcutFeedback a {
+  color: var(--spice-accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.shortcutFeedback a:hover {
+  color: #1ed760;
+  text-decoration: underline;
+}
+
+@media (width <= 768px) {
+  .shortcutItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .shortcutDesc {
+    text-align: left;
+  }
+
+  .installerLinks {
+    flex-direction: column;
+  }
+
+  .discordLink,
+  .websiteLink,
+  .installerLink {
+    justify-content: center;
+  }
+}
+
+.installerPreview {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.installerPreview img {
+  max-width: 400px;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 2px solid rgb(255 255 255 / 10%);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 40%);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.installerPreview img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 40px rgb(0 0 0 / 50%);
+}
+
+@media (width <= 768px) {
+  .installerPreview img {
+    max-width: 220px;
+  }
+}
+
+/* Learn More link button (for What's New section) */
+.learnMoreLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgb(255 255 255 / 10%);
+  border: 1px solid rgb(255 255 255 / 20%);
+  color: var(--spice-text);
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.learnMoreLink:hover {
+  background: rgb(255 255 255 / 15%);
+  border-color: rgb(255 255 255 / 30%);
+  transform: translateY(-2px);
+}
+
+/* Installer Section Styles */
+.installerHero {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-bottom: 32px;
+  padding: 24px;
+  background: rgb(255 255 255 / 2%);
+  border-radius: 16px;
+  border: 1px solid rgb(255 255 255 / 8%);
+}
+
+.installerHeroText {
+  flex: 1;
+}
+
+.installerHeroText p {
+  font-size: 18px;
+  color: var(--spice-text);
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
+.platformBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgb(255 255 255 / 8%);
+  border: 1px solid rgb(255 255 255 / 15%);
+  color: var(--spice-subtext);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.platformBadge:hover {
+  background: rgb(255 255 255 / 12%);
+  border-color: rgb(255 255 255 / 25%);
+  color: var(--spice-text);
+  text-decoration: none;
+}
+
+.installerFeatures {
+  margin-bottom: 28px;
+}
+
+.installerFeatures h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--spice-text);
+  margin: 0 0 16px;
+}
+
+.installerFeatureList {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.installerFeatureItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: rgb(0 0 0 / 20%);
+  border-radius: 10px;
+  border: 1px solid rgb(255 255 255 / 8%);
+}
+
+.installerFeatureIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--spice-accent), #1ed760);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.installerFeatureItem strong {
+  display: block;
+  font-size: 14px;
+  color: var(--spice-text);
+  margin-bottom: 4px;
+}
+
+.installerFeatureItem p {
+  font-size: 13px;
+  color: var(--spice-subtext);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.installerWarning {
+  background: rgb(255 107 107 / 8%);
+  border: 1px solid rgb(255 107 107 / 25%);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.warningHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  color: #ff6b6b;
+  margin-bottom: 12px;
+}
+
+.installerWarning p {
+  font-size: 14px;
+  color: var(--spice-text);
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+
+.installerWarning ul {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--spice-subtext);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.installerWarning li {
+  margin-bottom: 6px;
+}
+
+.installerWarning li strong {
+  color: var(--spice-text);
+}
+
+.warningTip {
+  margin-top: 16px !important;
+  margin-bottom: 0 !important;
+  padding: 10px 12px;
+  background: rgb(255 255 255 / 5%);
+  border-radius: 6px;
+  font-size: 13px !important;
+}
+
+.installerCta {
+  display: flex;
+  gap: 12px;
+  margin: 24px 0;
+  flex-wrap: wrap;
+}
+
+.installerDownloadLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: rgb(255 255 255 / 10%);
+  border: 1px solid rgb(255 255 255 / 20%);
+  color: var(--spice-text);
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.installerDownloadLink:hover {
+  background: rgb(255 255 255 / 15%);
+  border-color: rgb(255 255 255 / 30%);
+  text-decoration: none;
+}
+
+@media (width <= 768px) {
+  .installerHero {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .installerFeatureList {
+    grid-template-columns: 1fr;
+  }
+
+  .installerCta {
+    flex-direction: column;
+  }
+
+  .websiteLink,
+  .installerDownloadLink {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .learnMoreLink {
+    justify-content: center;
+  }
+}
+
+.sourceCodeLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgb(255 255 255 / 3%);
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--spice-subtext);
+  margin-bottom: 20px;
+}
+
+.sourceCodeLink a {
+  color: var(--spice-text);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sourceCodeLink a:hover {
+  color: var(--spice-accent);
+  text-decoration: underline;
+}

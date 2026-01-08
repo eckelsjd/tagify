@@ -149,3 +149,19 @@
 .toggleSwitch input:checked + .slider::before {
   transform: translateX(20px);
 }
+
+.inlineLink {
+  background: none;
+  border: none;
+  color: var(--spice-accent);
+  cursor: pointer;
+  font-size: inherit;
+  font-weight: 600;
+  padding: 0;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.inlineLink:hover {
+  color: #1ed760;
+}

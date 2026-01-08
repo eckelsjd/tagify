@@ -10,6 +10,7 @@ import CreatePlaylistModal from "@/components/modals/CreatePlaylistModal";
 import { useLocalStorage } from "@/hooks/shared/useLocalStorage";
 import { TrackInfoCacheManager } from "@/utils/TrackInfoCache";
 import { trackService } from "@/services/TrackService";
+import { spotifyService, TrackInfo } from "@/services/SpotifyService";
 import {
   PAGINATION_BATCH_SIZE,
   SORT_OPTIONS,
@@ -17,11 +18,6 @@ import {
   SortOption,
   SortOrder,
 } from "@/constants/trackList";
-import {
-  SpotifyArtist,
-  SpotifyBatchTracksResponse,
-  SpotifyTrackResponse,
-} from "@/types/SpotifyTypes";
 import ReactStars from "react-rating-stars-component";
 import SmartPlaylistModal from "@/components/modals/SmartPlaylistModal";
 import { formatTimestamp } from "@/utils/formatters";
@@ -315,6 +311,9 @@ const TrackList: React.FC<TrackListProps> = ({
     loadTrackInfo();
   }, [tracks]);
 
+  /**
+   * Fetch missing tracks using SpotifyService (GraphQL-based)
+   */
   const fetchAndCacheMissingTracks = async (
     missingUris: string[],
     currentTrackInfo: { [uri: string]: SpotifyTrackInfo },
@@ -322,54 +321,35 @@ const TrackList: React.FC<TrackListProps> = ({
       React.SetStateAction<{ [uri: string]: SpotifyTrackInfo }>
     >
   ) => {
-    // Process in batches of 20
-    for (let i = 0; i < missingUris.length; i += 20) {
-      const batch = missingUris.slice(i, i + 20);
+    // Use SpotifyService to batch fetch tracks
+    const batchResults = await spotifyService.getBatchTracks(missingUris, 10);
 
-      try {
-        const trackIds = batch.map((uri) => uri.split(":")[2]).filter(Boolean);
-        const response = (await Spicetify.CosmosAsync.get(
-          `https://api.spotify.com/v1/tracks?ids=${trackIds.join(",")}`
-        )) as SpotifyBatchTracksResponse;
+    const updatedTrackInfo = { ...currentTrackInfo };
 
-        if (response?.tracks) {
-          const updatedTrackInfo = { ...currentTrackInfo };
+    Object.entries(batchResults).forEach(([uri, trackData]) => {
+      // Cache the track info
+      TrackInfoCacheManager.setTrackInfo(uri, {
+        name: trackData.name,
+        artists: trackData.artists,
+        albumName: trackData.albumName,
+        albumUri: trackData.albumUri,
+        artistsData: trackData.artistsData,
+        duration_ms: trackData.duration_ms,
+        release_date: trackData.release_date,
+        cached_at: Date.now(),
+      });
 
-          response.tracks.forEach((track: SpotifyTrackResponse | null) => {
-            if (track?.id) {
-              const uri = `spotify:track:${track.id}`;
+      // Update local state
+      updatedTrackInfo[uri] = {
+        name: trackData.name,
+        artists: trackData.artists,
+        albumName: trackData.albumName,
+        albumUri: trackData.albumUri,
+        artistsData: trackData.artistsData,
+      };
+    });
 
-              const trackInfo = {
-                name: track.name,
-                artists: track.artists
-                  .map((a: SpotifyArtist) => a.name)
-                  .join(", "),
-                albumName: track.album?.name || "Unknown Album",
-                albumUri: track.album?.uri || null,
-                artistsData: track.artists.map((a: SpotifyArtist) => ({
-                  name: a.name,
-                  uri: a.uri,
-                })),
-              };
-
-              // Cache the track info
-              TrackInfoCacheManager.setTrackInfo(uri, {
-                ...trackInfo,
-                duration_ms: track.duration_ms,
-                release_date: track.album?.release_date || "",
-                cached_at: Date.now(),
-              });
-
-              updatedTrackInfo[uri] = trackInfo;
-            }
-          });
-
-          setTrackInfo(updatedTrackInfo);
-        }
-      } catch (error) {
-        console.error("Error fetching batch:", error);
-      }
-    }
+    setTrackInfo(updatedTrackInfo);
   };
 
   useEffect(() => {
@@ -745,7 +725,7 @@ const TrackList: React.FC<TrackListProps> = ({
     // onCleanupDeletedSmartPlaylists();
   };
 
-  const navigateToAlbum = (uri: string) => {
+  const navigateToAlbum = async (uri: string) => {
     try {
       if (uri.startsWith("spotify:local:")) {
         Spicetify.Platform.History.push("/collection/local-files");
@@ -753,10 +733,9 @@ const TrackList: React.FC<TrackListProps> = ({
       }
 
       const info = trackInfo[uri];
-      if (!info) return;
 
-      // If we have a complete trackInfo object with album ID already, use it
-      if (info.albumUri) {
+      // If we already have albumUri in trackInfo, use it directly
+      if (info?.albumUri) {
         const albumId = info.albumUri.split(":").pop();
         if (albumId) {
           Spicetify.Platform.History.push(`/album/${albumId}`);
@@ -764,29 +743,26 @@ const TrackList: React.FC<TrackListProps> = ({
         }
       }
 
-      // Otherwise extract track ID and get album info
-      const trackId = uri.split(":").pop();
-      if (!trackId) return;
-
-      // Fetch track to get album
-      Spicetify.CosmosAsync.get(`https://api.spotify.com/v1/tracks/${trackId}`)
-        .then((response) => {
-          if (response && response.album && response.album.id) {
-            Spicetify.Platform.History.push(`/album/${response.album.id}`);
-          }
-        })
-        .catch((error) => {
-          console.error("Error navigating to album:", error);
-        });
+      // Otherwise fetch album URI using SpotifyService
+      const albumUri = await spotifyService.getTrackAlbumUri(uri);
+      if (albumUri) {
+        const albumId = albumUri.split(":").pop();
+        if (albumId) {
+          Spicetify.Platform.History.push(`/album/${albumId}`);
+        }
+      }
     } catch (error) {
       console.error("Error navigating to album:", error);
     }
   };
 
-  const navigateToArtist = (artistName: string, trackUri: string) => {
+  /**
+   * Navigate to artist page
+   * Uses cached artistsData or SpotifyService for lookup
+   */
+  const navigateToArtist = async (artistName: string, trackUri: string) => {
     try {
       if (trackUri.startsWith("spotify:local:")) {
-        // For local files, we can't navigate to an artist
         Spicetify.showNotification(
           "Cannot navigate to artist for local files",
           true
@@ -794,14 +770,11 @@ const TrackList: React.FC<TrackListProps> = ({
         return;
       }
 
-      // Get track info to find artist
+      // Check if we have artistsData in trackInfo
       const info = trackInfo[trackUri];
-      if (!info) return;
-
-      // If the info has an artistsData array with URIs, use it
-      if (info.artistsData) {
+      if (info?.artistsData) {
         const artist = info.artistsData.find((a) => a.name === artistName);
-        if (artist && artist.uri) {
+        if (artist?.uri) {
           const artistId = artist.uri.split(":").pop();
           if (artistId) {
             Spicetify.Platform.History.push(`/artist/${artistId}`);
@@ -810,7 +783,19 @@ const TrackList: React.FC<TrackListProps> = ({
         }
       }
 
-      // Fallback - search for the artist
+      // Fallback: fetch artists using SpotifyService
+      const artists = await spotifyService.getTrackArtists(trackUri);
+      const artist = artists.find((a) => a.name === artistName);
+
+      if (artist?.uri) {
+        const artistId = artist.uri.split(":").pop();
+        if (artistId) {
+          Spicetify.Platform.History.push(`/artist/${artistId}`);
+          return;
+        }
+      }
+
+      // Final fallback: search for the artist
       Spicetify.Platform.History.push(
         `/search/${encodeURIComponent(artistName)}/artists`
       );
