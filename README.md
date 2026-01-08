@@ -4,6 +4,9 @@ Tagify is a powerful [Spicetify](https://github.com/spicetify/cli) custom app th
 
 > Tag, rate, and organize your Spotify library like never before. 
 
+
+🔗 **[tagify.fm](https://www.tagify.fm)**
+
 [![GitHub release](https://img.shields.io/github/release/alexk218/tagify.svg)](https://github.com/alexk218/tagify/releases)
 [![GitHub Discussions](https://img.shields.io/github/discussions/alexk218/tagify?color=blue&logo=github&label=discussions)](https://github.com/alexk218/tagify/discussions)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?style=flat&logo=buymeacoffee&logoColor=000)](https://buymeacoffee.com/alexk218)
@@ -15,7 +18,7 @@ Tagify is a powerful [Spicetify](https://github.com/spicetify/cli) custom app th
 
 ## Motivation
 
-After years of failed attempts to organize my 10,000+ track collection, I built what every lover of music needs: a way to tag, rate, and find music the way your brain thinks about it.
+After years of failed attempts to organize my 10,000+ track collection, I built what every music lover needs: a way to tag, rate, and find music the way your brain thinks about it.
 
 ---
 
@@ -46,17 +49,22 @@ Select multiple tracks and apply tags in bulk.
 
 ---
 
-## Quick Start
+## Install Tagify
+
+### **Automatic Installer/Updater**
+[Tagify Installer for Windows](https://github.com/alexk218/tagify-installer/releases/latest)
+
+This installs Spicetify and Tagify. Keep this installed, as it will handle all Spicetify and Tagify updates in the future.
+
+Coming to macOS & Linux soon!
+
+## Manual Install (required for macOS & Linux)
 
 ### Prerequisites
 
 You'll need **Spicetify** installed on your computer.
 
 ➡️ **[Complete Spicetify Installation Guide](SPICETIFY_INSTALLATION.md)**
-
-## Install Tagify
-
-### **One-Click Install (recommended)**
 
 ### Windows
 
@@ -73,51 +81,6 @@ Open **Terminal** and run:
 ```bash
 curl -fsSL "https://raw.githubusercontent.com/alexk218/tagify/main/install.sh" | bash
 ```
-
-### **Manual install**
-
-#### **1. Download Tagify**
-
-- Go to the [Releases page](https://github.com/alexk218/tagify/releases)
-- Download latest .zip file
-
-#### **2. Find your Spicetify folder**
-
-- **Option 1:** Use the Spicetify CLI
-
-  1. Run `spicetify config-dir` to open the Spicetify folder
-  2. Open the `CustomApps` folder.
-
-- **Option 2:** Manually navigate to the folder
-  - **Windows**: `Windows + R` - `%APPDATA%\spicetify\CustomApps`
-  - **Mac**: `Cmd + Shift + G` - `~/.config/spicetify/CustomApps`
-
-#### **3. Extract Tagify**
-
-- Extact/unzip the downloaded .zip file.
-- Drag `tagify` folder into `CustomApps` folder
-
-#### **4. Activate Tagify**
-
-- Open PowerShell (Windows) or Terminal (Mac/Linux):
-
-  ```bash
-  spicetify config custom_apps tagify
-  spicetify apply
-  ```
-
-**5. Start using Tagify!**
-
-- Restart Spotify completely
-- Look for "Tagify" in your Spotify **top navigation bar** (next to the Spicetify Marketplace button)
-- Click it to open Tagify!
-
-## ⌛ Coming soon
-Tagify is being upgraded on a regular basis.
-Soon you'll be able to...
-- Apply ratings and tags to your playlists.
-- Import your data from RateYourMusic.
-- Downloads your tracks within Spotify. A download button next to all of your tracks.
 
 ## Community & Support
 Join the community and influence Tagify's roadmap.
