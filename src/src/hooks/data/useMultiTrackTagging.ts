@@ -37,9 +37,6 @@ export interface DraftTagState {
  * // Enter multi-tagging mode with selected tracks
  * setIsMultiTagging(true);
  * setMultiTagTracks(selectedTracks);
- *
- * // Toggle a tag for all selected tracks
- * toggleTag('genre', 'electronic', 'house');
  * ```
  *
  * @remarks

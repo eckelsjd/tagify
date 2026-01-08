@@ -720,13 +720,15 @@ export function useSmartPlaylists({ tagData }: UseSmartPlaylistProps) {
         true,
         5000
       );
-    } else if (wasAdded) {
-      Spicetify.showNotification(
-        `✅ Added track to smart playlist "${playlistName}"`,
-        false,
-        3000
-      );
-    }
+    } 
+    // ? Spotify automatically shows notification when track is added to playlist
+    // else if (wasAdded) {
+    //   Spicetify.showNotification(
+    //     `✅ Added track to smart playlist "${playlistName}"`,
+    //     false,
+    //     3000
+    //   );
+    // }
   };
 
   const showTrackRemovedNotification = (playlistName: string) => {

@@ -1,11 +1,7 @@
 import { useEffect } from "react";
-import {
-  SpicetifyHistoryLocation,
-  SpotifyArtist,
-  SpotifyTrack,
-  SpotifyTrackResponse,
-} from "@/types/SpotifyTypes";
+import { SpicetifyHistoryLocation, SpotifyTrack } from "@/types/SpotifyTypes";
 import { parseLocalFileUri } from "@/utils/LocalFileParser";
+import { spotifyService } from "@/services/SpotifyService";
 
 /**
  * Props for {@link useSpicetifyHistory}.
@@ -122,29 +118,17 @@ export function useSpicetifyHistory({
             return;
           }
 
-          // Extract the track ID from the URI
-          const trackId = trackUri.split(":").pop();
+          const trackData = await spotifyService.getTrack(trackUri);
 
-          if (!trackId) {
-            throw new Error("Invalid track URI");
-          }
-
-          // Fetch track info using Spicetify's Cosmos API
-          const response: SpotifyTrackResponse =
-            await Spicetify.CosmosAsync.get(
-              `https://api.spotify.com/v1/tracks/${trackId}`
-            );
-
-          if (response) {
-            // Format the track info
+          if (trackData) {
             const trackInfo: SpotifyTrack = {
               uri: trackUri,
-              name: response.name,
-              artists: response.artists.map((artist: SpotifyArtist) => ({
+              name: trackData.name,
+              artists: trackData.artistsData.map((artist) => ({
                 name: artist.name,
               })),
-              album: { name: response.album?.name || "Unknown Album" },
-              duration_ms: response.duration_ms,
+              album: { name: trackData.albumName },
+              duration_ms: trackData.duration_ms,
             };
 
             // Set as locked track and enable lock - IMPORTANT!
@@ -208,26 +192,18 @@ export function useSpicetifyHistory({
                     duration_ms: 0,
                   };
                 } else {
-                  // For Spotify tracks
-                  const trackId = uri.split(":").pop();
-                  if (!trackId) continue;
+                  // For Spotify tracks - use SpotifyService
+                  const trackData = await spotifyService.getTrack(uri);
 
-                  const response: SpotifyTrackResponse =
-                    await Spicetify.CosmosAsync.get(
-                      `https://api.spotify.com/v1/tracks/${trackId}`
-                    );
-
-                  if (response) {
+                  if (trackData) {
                     updatedTrack = {
                       uri,
-                      name: response.name,
-                      artists: response.artists.map(
-                        (artist: SpotifyArtist) => ({
-                          name: artist.name,
-                        })
-                      ),
-                      album: { name: response.album?.name || "Unknown Album" },
-                      duration_ms: response.duration_ms,
+                      name: trackData.name,
+                      artists: trackData.artistsData.map((artist) => ({
+                        name: artist.name,
+                      })),
+                      album: { name: trackData.albumName },
+                      duration_ms: trackData.duration_ms,
                     };
                   } else {
                     continue;

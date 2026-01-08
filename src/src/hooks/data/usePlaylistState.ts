@@ -2,7 +2,9 @@ import { useState } from "react";
 
 export function usePlaylistState() {
   const [showLocalTracksModal, setShowLocalTracksModal] = useState(false);
-  const [localTracksForPlaylist, setLocalTracksForPlaylist] = useState<string[]>([]);
+  const [localTracksForPlaylist, setLocalTracksForPlaylist] = useState<
+    string[]
+  >([]);
   const [createdPlaylistInfo, setCreatedPlaylistInfo] = useState<{
     name: string;
     id: string | null;
@@ -23,45 +25,93 @@ export function usePlaylistState() {
     const type = isSmartPlaylist ? "smart playlist" : "playlist";
 
     try {
-      const userProfile = await Spicetify.CosmosAsync.get("https://api.spotify.com/v1/me");
-      const userId = userProfile.id;
-
-      if (!userId) {
-        throw new Error("Could not get user ID");
-      }
-
-      const spotifyTrackUris = trackUris.filter((uri) => !uri.startsWith("spotify:local:"));
-      const localTrackUris = trackUris.filter((uri) => uri.startsWith("spotify:local:"));
-
-      // Create the playlist
-      const playlistResponse = await Spicetify.CosmosAsync.post(
-        `https://api.spotify.com/v1/users/${userId}/playlists`,
-        {
-          name: playlistName,
-          description: playlistDescription,
-          public: isPublic,
-        }
+      const spotifyTrackUris = trackUris.filter(
+        (uri) => !uri.startsWith("spotify:local:")
+      );
+      const localTrackUris = trackUris.filter((uri) =>
+        uri.startsWith("spotify:local:")
       );
 
-      const playlistId = playlistResponse.id;
+      let playlistUri: string | null = null;
+      let playlistId: string | null = null;
 
-      if (!playlistId) {
+      // Method 1: Try RootlistAPI.createPlaylist if it exists
+      if (
+        typeof (Spicetify.Platform.RootlistAPI as any).createPlaylist ===
+        "function"
+      ) {
+        const result = await (
+          Spicetify.Platform.RootlistAPI as any
+        ).createPlaylist(playlistName, { before: "start" });
+        playlistUri = typeof result === "string" ? result : result?.uri;
+      }
+      // Method 2: Fallback to fetch for playlist creation
+      else {
+        const accessToken =
+          Spicetify.Platform.AuthorizationAPI?.getState?.()?.token
+            ?.accessToken ||
+          (Spicetify.Platform.PlaylistAPI as any)?._builder?._accessToken;
+
+        const userId = Spicetify.Platform.username;
+
+        if (!accessToken || !userId) {
+          throw new Error("Could not get access token or username");
+        }
+
+        const createResponse = await fetch(
+          `https://api.spotify.com/v1/users/${userId}/playlists`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name: playlistName,
+              description: playlistDescription,
+              public: isPublic,
+            }),
+          }
+        );
+
+        if (!createResponse.ok) {
+          throw new Error(
+            `Failed to create playlist: ${createResponse.status}`
+          );
+        }
+
+        const playlistData = await createResponse.json();
+        playlistId = playlistData.id;
+        playlistUri = `spotify:playlist:${playlistId}`;
+      }
+
+      if (!playlistUri) {
         throw new Error("Failed to create playlist");
       }
 
-      // Add tracks to the playlist in batches of 100 (API limit)
-      for (let i = 0; i < spotifyTrackUris.length; i += 100) {
-        const batch = spotifyTrackUris.slice(i, Math.min(i + 100, spotifyTrackUris.length));
-        await Spicetify.CosmosAsync.post(
-          `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
-          {
-            uris: batch,
-          }
-        );
+      // Extract playlist ID from URI if not already set
+      if (!playlistId) {
+        playlistId = playlistUri.split(":").pop() || null;
+      }
+
+      if (!playlistId) {
+        throw new Error("Failed to get playlist ID");
+      }
+
+      // Use PlaylistAPI.add() to add tracks (this works per the script!)
+      if (spotifyTrackUris.length > 0) {
+        // Add in batches of 100
+        for (let i = 0; i < spotifyTrackUris.length; i += 100) {
+          const batch = spotifyTrackUris.slice(i, i + 100);
+          await (Spicetify.Platform.PlaylistAPI as any).add(
+            playlistUri,
+            batch,
+            { after: "end" }
+          );
+        }
       }
 
       if (localTrackUris.length > 0) {
-        // For LocalTracksModal - store the created playlist info
         setCreatedPlaylistInfo({
           name: playlistName,
           id: playlistId,
@@ -72,7 +122,6 @@ export function usePlaylistState() {
           `Created ${type} "${playlistName}" with ${spotifyTrackUris.length} tracks. Local tracks need to be added manually.`
         );
 
-        // Show modal with local tracks instructions
         setShowLocalTracksModal(true);
         return playlistId;
       } else {
@@ -80,12 +129,15 @@ export function usePlaylistState() {
           `Created ${type} "${playlistName}" with ${spotifyTrackUris.length} tracks.`
         );
       }
-      // Navigate to the newly created playlist
+
       Spicetify.Platform.History.push(`/playlist/${playlistId}`);
       return playlistId;
     } catch (error) {
       console.error("Error creating playlist:", error);
-      Spicetify.showNotification("Failed to create playlist. Please try again.", true);
+      Spicetify.showNotification(
+        "Failed to create playlist. Please try again.",
+        true
+      );
       return null;
     }
   };
