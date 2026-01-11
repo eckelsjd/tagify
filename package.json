@@ -1,27 +1,29 @@
 {
-  "name": "tagify",
-  "version": "2.1.2",
-  "license": "BUSL-1.1",
+  "name": "tagify-secret",
+  "version": "2.2.0",
   "private": true,
+  "exports": {
+    "./components/track": "./src/components/track/index.ts",
+    "./components/tagging": "./src/components/tagging/index.ts",
+    "./components/modals": "./src/components/modals/index.ts",
+    "./components/ui": "./src/components/ui/index.ts",
+    "./hooks/*": "./src/hooks/*/index.ts",
+    "./services/*": "./src/services/*.ts",
+    "./utils/*": "./src/utils/*.ts"
+  },
   "scripts": {
-    "build": "spicetify-creator",
-    "build-local": "spicetify-creator --out=dist --minify",
-    "watch": "spicetify-creator --watch",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:run": "vitest run",
-    "test:verbose": "vitest --reporter=verbose",
-    "test:debug": "vitest --reporter=verbose --no-coverage",
-    "test:watch": "vitest --watch",
-    "test:coverage": "vitest run --coverage",
-    "test:single": "vitest --reporter=verbose --run",
-    "test:failed": "vitest --reporter=verbose --run --bail=1",
-    "test:smart-playlist": "vitest run src/test/hooks/useTagData.test.ts",
-    "test:components": "vitest run src/test/components/ --reporter=verbose",
-    "test:services": "vitest run src/test/services/ --reporter=verbose",
-    "test:version": "vitest run src/services/__tests__/VersionCheckerService.test.js --reporter=verbose",
-    "clean:css": "purgecss --css src/**/*.css --content src/**/*.tsx --output cleaned-css/",
-    "fix:css": "stylelint \"**/*.css\" --fix"
+    "build": "spicetify-creator && node scripts/build/copy-version-metadata.cjs",
+    "watch": "spicetify-creator --watch"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-brands-svg-icons": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
+    "lucide-react": "^0.542.0",
+    "prop-types": "^15.8.1",
+    "protobufjs": "^8.0.0",
+    "react-rating-stars-component": "^2.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",
@@ -45,15 +47,9 @@
     "stylelint-config-standard": "^39.0.0",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.32.1",
-    "vitest": "^1.6.1"
-  },
-  "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^7.0.0",
-    "@fortawesome/free-brands-svg-icons": "^7.0.0",
-    "@fortawesome/free-solid-svg-icons": "^7.0.0",
-    "@fortawesome/react-fontawesome": "^3.0.2",
-    "lucide-react": "^0.542.0",
-    "prop-types": "^15.8.1",
-    "react-rating-stars-component": "^2.2.0"
+    "vitest": "^1.6.1",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "sass": "^1.77.8"
   }
 }
